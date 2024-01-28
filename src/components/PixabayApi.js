@@ -1,3 +1,4 @@
+// PixabayApi.js
 import axios from 'axios';
 
 const ENDPOINT = 'https://pixabay.com/api/';
@@ -35,5 +36,20 @@ export default class PixabayApi {
 
   incrementPage() {
     this.queryPage += 1;
+  }
+
+  // New method to get more images
+  async getMoreImages(query) {
+    this.incrementPage();
+    try {
+      const response = await this.getImages(query, this.queryPage);
+      return response.hits.map(hit => ({
+        id: hit.id,
+        imageUrl: hit.webformatURL,
+        alt: hit.tags,
+      }));
+    } catch (error) {
+      throw error;
+    }
   }
 }

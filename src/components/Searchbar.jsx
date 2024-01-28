@@ -1,5 +1,7 @@
+// Searchbar.jsx
 import React, { Component } from 'react';
 import PixabayApi from './PixabayApi';
+import ImageGallery from './ImageGallery';
 
 class Searchbar extends Component {
   constructor(props) {
@@ -13,7 +15,6 @@ class Searchbar extends Component {
 
   handleSearch = async (event) => {
     event.preventDefault();
-
     const searchQuery = event.target.elements.searchQuery.value;
     if (!searchQuery) {
       return;
@@ -29,16 +30,26 @@ class Searchbar extends Component {
 
       this.setState({ images: newImages });
       this.pixabayApi.incrementPage();
-
-      // Update the state in the App component
       this.props.setSearchedImages(newImages);
     } catch (error) {
       console.error('Error fetching images:', error);
     }
   };
 
+  handleLoadMore = async () => {
+    try {
+      const moreImages = await this.pixabayApi.getMoreImages(this.state.searchQuery);
+      this.setState((prevState) => ({
+        images: [...prevState.images, ...moreImages],
+      }));
+    } catch (error) {
+      console.error('Error fetching more images:', error);
+    }
+  };
+
   render() {
     return (
+      <section>
         <div className="search-box">
           <span className="logo-name" onClick={() => window.location.reload()}>
             Image Seeker
@@ -55,6 +66,8 @@ class Searchbar extends Component {
             </button>
           </form>
         </div>
+        <ImageGallery images={this.state.images} loadMore={this.handleLoadMore} />
+      </section>
     );
   }
 }
